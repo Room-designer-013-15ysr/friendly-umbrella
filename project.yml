@@ -9,18 +9,7 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - EpubAudiobookApp.swift
-    info:
-      path: EpubAudiobookApp/Info.plist
-      properties:
-        CFBundleDisplayName: "EPUB Audiobook"
-        CFBundleIdentifier: "com.jkwilliams.epubaudiobook"
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
-        UILaunchScreen: {}
-        UISupportedInterfaceOrientations:
-          - UIInterfaceOrientationPortrait
-        UIBackgroundModes:
-          - audio
+      - Info.plist
     dependencies:
       - package: ZIPFoundation
     settings:
@@ -30,6 +19,7 @@ targets:
         CODE_SIGNING_ALLOWED: "NO"
         CODE_SIGN_IDENTITY: ""
         PRODUCT_BUNDLE_IDENTIFIER: com.jkwilliams.epubaudiobook
+        INFOPLIST_FILE: Info.plist
 
 packages:
   ZIPFoundation:
