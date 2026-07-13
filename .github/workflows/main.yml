@@ -16,7 +16,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout Source Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Install XcodeGen
@@ -33,7 +33,8 @@ jobs:
 
       - name: Build App
         run: |
-          xcodebuild clean build \
+          xcodebuild \
+            clean build \
             -project EpubAudiobookApp.xcodeproj \
             -scheme EpubAudiobookApp \
             -configuration Release \
@@ -43,40 +44,37 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      - name: Show Build Products
+      - name: Locate App Bundle
         run: |
-          echo "Current directory:"
-          pwd
-
-          echo ""
-          echo "Contents of build folder:"
-          ls -R build || true
-
-          echo ""
-          echo "Searching for .app bundle:"
+          echo "Searching for .app bundle..."
           find build -name "*.app"
 
-      - name: Package Unsigned IPA
+      - name: Create IPA
         run: |
           APP_PATH=$(find build -name "*.app" | head -n 1)
 
-          if [ -z "$APP_PATH" ]; then
-            echo "ERROR: No .app bundle found."
+          if [ ! -d "$APP_PATH" ]; then
+            echo "ERROR: Could not find .app bundle."
             exit 1
           fi
 
-          echo "Using app:"
+          echo "Found app at:"
           echo "$APP_PATH"
 
+          rm -rf Payload
           mkdir Payload
+
           cp -R "$APP_PATH" Payload/
 
-          cd Payload
-          zip -r ../EpubAudiobookApp-unsigned.ipa .
-          cd ..
+          rm -f EpubAudiobookApp.ipa
+
+          /usr/bin/zip -qry EpubAudiobookApp.ipa Payload
+
+          echo "IPA contents:"
+          unzip -l EpubAudiobookApp.ipa | head -30
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: EpubAudiobookApp-Unsigned-IPA
-          path: EpubAudiobookApp-unsigned.ipa
+          path: EpubAudiobookApp.ipa
