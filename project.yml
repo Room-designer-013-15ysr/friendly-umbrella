@@ -1,6 +1,7 @@
 name: EpubAudiobookApp
 options:
   bundleIdPrefix: com.jkwilliams.epubaudiobook
+  xcodeVersion: "15.4"   # <-- ADD THIS LINE RIGHT HERE
 targets:
   EpubAudiobookApp:
     type: application
