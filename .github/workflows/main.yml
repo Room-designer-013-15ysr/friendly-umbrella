@@ -20,16 +20,17 @@ jobs:
       - name: Generate Xcode Project
         run: xcodegen generate
 
-      - name: Build App (.app Bundle)
-        run: |
-          xcodebuild clean build \
-            -project EpubAudiobookApp.xcodeproj \
-            -scheme EpubAudiobookApp \
-            -configuration Release \
-            -sdk iphoneos \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+      - - name: Build App (.app Bundle)
+  run: |
+    xcodebuild clean build \
+      -project EpubAudiobookApp.xcodeproj \
+      -scheme EpubAudiobookApp \
+      -configuration Release \
+      -sdk iphoneos \
+      -derivedDataPath build \
+      CODE_SIGNING_ALLOWED=NO \
+      CODE_SIGNING_REQUIRED=NO \
+      CODE_SIGN_IDENTITY=""
 
       - name: Package App into Unsigned IPA
         run: |
