@@ -1,0 +1,44 @@
+name: Build Unsigned IPA
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build App (.app Bundle)
+        run: |
+          xcodebuild clean build \
+            -project EpubAudiobookApp.xcodeproj \
+            -scheme EpubAudiobookApp \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package App into Unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Release-iphoneos/EpubAudiobookApp.app Payload/
+          zip -r EpubAudiobookApp.unsigned.ipa Payload
+          
+      - name: Upload Finished IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EpubAudiobookApp-Unsigned-IPA
+          path: EpubAudiobookApp.unsigned.ipa
