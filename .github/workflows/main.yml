@@ -2,14 +2,19 @@ name: Build Unsigned IPA
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-latest  # <-- Changed from macos-14 to get a faster machine
+    runs-on: macos-latest
+
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -20,26 +25,58 @@ jobs:
       - name: Generate Xcode Project
         run: xcodegen generate
 
-      - - name: Build App (.app Bundle)
-  run: |
-    xcodebuild clean build \
-      -project EpubAudiobookApp.xcodeproj \
-      -scheme EpubAudiobookApp \
-      -configuration Release \
-      -sdk iphoneos \
-      -derivedDataPath build \
-      CODE_SIGNING_ALLOWED=NO \
-      CODE_SIGNING_REQUIRED=NO \
-      CODE_SIGN_IDENTITY=""
-
-      - name: Package App into Unsigned IPA
+      - name: Resolve Swift Packages
         run: |
-          mkdir -p Payload
-          cp -r build/Release-iphoneos/EpubAudiobookApp.app Payload/
-          zip -r EpubAudiobookApp.unsigned.ipa Payload
-          
-      - name: Upload Finished IPA Artifact
+          xcodebuild \
+            -resolvePackageDependencies \
+            -project EpubAudiobookApp.xcodeproj
+
+      - name: Build App
+        run: |
+          xcodebuild clean build \
+            -project EpubAudiobookApp.xcodeproj \
+            -scheme EpubAudiobookApp \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Show Build Products
+        run: |
+          echo "Current directory:"
+          pwd
+
+          echo ""
+          echo "Contents of build folder:"
+          ls -R build || true
+
+          echo ""
+          echo "Searching for .app bundle:"
+          find build -name "*.app"
+
+      - name: Package Unsigned IPA
+        run: |
+          APP_PATH=$(find build -name "*.app" | head -n 1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app bundle found."
+            exit 1
+          fi
+
+          echo "Using app:"
+          echo "$APP_PATH"
+
+          mkdir Payload
+          cp -R "$APP_PATH" Payload/
+
+          cd Payload
+          zip -r ../EpubAudiobookApp-unsigned.ipa .
+          cd ..
+
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: EpubAudiobookApp-Unsigned-IPA
-          path: EpubAudiobookApp.unsigned.ipa
+          path: EpubAudiobookApp-unsigned.ipa
