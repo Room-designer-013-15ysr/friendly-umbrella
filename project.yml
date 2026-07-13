@@ -1,0 +1,24 @@
+name: EpubAudiobookApp
+options:
+  bundleIdPrefix: com.jkwilliams.epubaudiobook
+targets:
+  EpubAudiobookApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - EpubAudiobookApp.swift
+    dependencies:
+      - package: ZIPFoundation
+    settings:
+      base:
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGN_IDENTITY: ""
+        PRODUCT_BUNDLE_IDENTIFIER: com.jkwilliams.epubaudiobook
+
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    from: 0.9.19
