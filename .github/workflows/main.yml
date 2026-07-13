@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest  # <-- Changed from macos-14 to get a faster machine
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
